@@ -8,8 +8,11 @@ echo Starting FastAPI Backend (Port 8000)...
 echo Starting React Vite Frontend (Port 5173)...
 echo.
 
-:: Open browser after a brief pause so servers initialize
-start "" http://localhost:5173
+echo Application URL: http://localhost:5173/login
+echo.
+
+:: Open browser directly to login page
+start "" http://localhost:5173/login
 
 :: Start both backend and frontend concurrently
 npm start

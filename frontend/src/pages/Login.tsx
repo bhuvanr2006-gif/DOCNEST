@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ShieldCheck,
   ArrowRight,
@@ -14,7 +14,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  if (user) return <Navigate to="/" replace />;
+
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -94,6 +94,21 @@ export default function Login() {
               Enter your credentials to unlock and view your household documents.
             </p>
           </div>
+
+          {user && (
+            <div className="rounded-xl border border-teal-200 bg-teal-50 p-3.5 text-xs text-teal-900 flex items-center justify-between shadow-xs">
+              <div>
+                <p className="font-semibold text-teal-950">Active session found</p>
+                <p className="text-teal-700">Signed in as {user.full_name || user.email}</p>
+              </div>
+              <Link
+                to="/"
+                className="btn-primary !py-1.5 !px-3 text-xs"
+              >
+                Go to Vault &rarr;
+              </Link>
+            </div>
+          )}
 
           <form onSubmit={onSubmit} autoComplete="off" className="card p-6 space-y-4 shadow-soft bg-white">
             <div>
