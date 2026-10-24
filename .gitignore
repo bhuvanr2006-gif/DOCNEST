@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+frontend/dist/
+
+# Local data
+backend/storage/
+backend/*.db
+backend/*.db-journal
+*.sqlite3
+
+# Blockchain
+blockchain/cache/
+blockchain/artifacts/
+blockchain/typechain-types/
+blockchain/node_modules/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+*.tsbuildinfo

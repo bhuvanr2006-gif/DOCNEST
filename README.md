@@ -1,0 +1,148 @@
+# DocNest
+
+DocNest is a secure household document and asset management vault built with React + TypeScript on the frontend, FastAPI on the backend, encrypted local file storage, OCR-assisted text capture, role-based sharing, and SHA-256 tamper verification.
+
+Built for complete household privacy and secure family document storage.
+
+## Features
+
+- Registration, login, household creation, invitations, and roles (owner, adult, dependent, guest)
+- PDF / JPG / PNG upload with private encrypted storage (AES-256-GCM)
+- OCR via Tesseract with OpenCV preprocessing; embedded PDF text via PyMuPDF
+- Manual correction of extracted fields; original OCR values are retained
+- Searchable repository, assets, expiry reminders, sharing grants, consent log, audit trail
+- SHA-256 integrity verification and a development tamper demonstration
+- Optional local blockchain digest registry (disabled by default)
+
+## Vault Owner Credentials
+
+| Account | Role | Email | Password |
+| --- | --- | --- | --- |
+| Primary Administrator | Owner | `owner@docnest.com` | `OwnerVault@2026!` |
+
+You can log in directly at `http://localhost:5173` with these owner credentials.
+
+
+## Requirements
+
+- Python 3.11+
+- Node.js 18+
+- Tesseract OCR installed on the system (`tesseract` on PATH)
+- Optional: PostgreSQL, Hardhat / Node for the blockchain module
+
+Windows (Tesseract): install from the official Tesseract installer and ensure `tesseract.exe` is on PATH.
+
+## Setup
+
+```powershell
+cd "C:\Users\deeks\OneDrive\Desktop\Mini Project 2"
+copy .env.example .env
+```
+
+Generate a 32-byte master key (PowerShell):
+
+```powershell
+python -c "import base64,os; print(base64.b64encode(os.urandom(32)).decode())"
+```
+
+Put the value in `.env` as `DOCNEST_MASTER_KEY`. Also set a long `DOCNEST_SECRET_KEY`.
+
+## Quick Start (Easiest Way to Run)
+
+### Option 1: 1-Click Launch (Windows)
+Double-click **`run.bat`** (or `start.bat`) in the project folder.  
+It automatically starts both the backend and frontend simultaneously and opens `http://localhost:5173` in your browser.
+
+### Option 2: Single Command (Terminal)
+In the project root folder, simply run:
+```bash
+npm start
+```
+*(This starts both the FastAPI backend on port 8000 and the Vite frontend on port 5173 together).*
+
+---
+
+### Manual Start (Alternative)
+
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+alembic upgrade head
+python scripts\generate_samples.py
+python scripts\seed.py
+uvicorn app.main:app --reload --app-dir .
+```
+
+API docs: http://127.0.0.1:8000/docs
+
+Default database is SQLite at `backend/docnest.db`. For PostgreSQL, set `DATABASE_URL` in `.env`.
+
+### Frontend
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+UI: http://localhost:5173
+
+### Tests
+
+```powershell
+cd backend
+.\.venv\Scripts\activate
+pytest -q
+```
+
+### Optional blockchain
+
+```powershell
+cd blockchain
+npm install
+npx hardhat test
+npx hardhat node
+# in another terminal
+npx hardhat run scripts/deploy.js --network localhost
+```
+
+Copy the deployed address and a Hardhat development private key into `.env`, then set:
+
+```
+BLOCKCHAIN_ENABLED=true
+INTEGRITY_MODE=blockchain
+```
+
+If the RPC is down, DocNest stores the digest in the database and does **not** display a successful blockchain verification.
+
+## Security notes
+
+- Document files are encrypted before they are written under `backend/storage/documents`.
+- Per-document data keys are wrapped with `DOCNEST_MASTER_KEY` and stored in the `encryption_keys` table, not next to ciphertext files.
+- The storage folder is not served as static files.
+- SHA-256 detects alteration of the original bytes; it does not encrypt data and does not stop a privileged operator who has the master key.
+- Deleting a document removes the ciphertext and wrapped key. An immutable blockchain transaction, if one exists, cannot be erased.
+- Logs and URLs avoid Aadhaar / PAN payloads.
+
+## Indian data-protection alignment (illustrative)
+
+DocNest implements purpose-limited sharing, consent records, access logs, role restrictions, encryption at rest, and a deletion workflow. That is **not** the same as certified compliance with the Digital Personal Data Protection Act, 2023 or any other statute. A legal review is required before any real personal data is stored.
+
+## Known limitations
+
+- OCR quality depends on Tesseract and the sample image; low-contrast scans often need manual correction.
+- Email reminders are stubs (`EMAIL_NOTIFICATIONS_ENABLED=false`).
+- SQLite is the default local mode; PostgreSQL is supported through `DATABASE_URL`.
+- Blockchain mode is optional and local-only.
+- Guest users cannot browse the household repository; they can open specifically shared documents.
+
+## Project layout
+
+- `backend/` FastAPI application, Alembic migrations, tests
+- `frontend/` React + Vite + Tailwind UI
+- `blockchain/` Solidity contract and Hardhat config
+- `samples/` synthetic documents generated by the sample script
+- `docs/` architecture, ER, OCR, security diagrams, API list, demo script, report outline
